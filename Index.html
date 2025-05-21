@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewposrt" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="IoT Device Monitoring Dashboard">
+    <title>Device Monitoring Dashboard</title>
+
+    <!-- Favicon 
+    <link rel="icon" href="Assets/images/favicon.ico" type="image/x-icon"> -->
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="Assets/CSS/index.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        /* Inline styles for welcome page - could be moved to welcome.css */
+        .welcome-container {
+            background: white;
+            padding: 40px;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            box-shadow: var(--shadow-main);
+            animation: fadeIn 1s ease;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .welcome-container h1 {
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            font-size: 2.5rem;
+        }   
+
+        .welcome-container p {
+            margin-bottom: 30px;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="welcome-container">
+        <h1>Device Monitoring Dashboard</h1>
+        <p>Loading your dashboard experience...</p>
+        <div class="loader" aria-label="Loading"></div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Configuration
+        const config = {
+            redirectDelay: 3000,
+            homePage: "Pages/analog-devices.html"
+        };
+
+        // Redirect after delay
+        setTimeout(function () {
+            window.location.href = config.homePage;
+        }, config.redirectDelay);
+
+        // Log for debugging
+        console.log("Welcome page loaded, redirecting in", config.redirectDelay / 1000, "seconds");
+    </script>
+</body>
+
+</html>
