@@ -1,0 +1,137 @@
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Analog Devices</title>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <link rel="stylesheet" href="../Assets/CSS/index.css">
+        <link rel="stylesheet" href="../Assets/CSS/analog.css">
+    </head>
+    <body>
+        <main>
+
+        <!-- Analog Data Table -->
+    <div id="analog" class="tab-content active-content">
+        <h2>Analog Data</h2>
+    
+        <div class="table-scroll-vertical">
+        <table>
+            <thead>
+            <tr>
+                <th rowspan="2">Time</th>
+                <th rowspan="2">Date</th>
+                <th colspan="5">Analog</th>
+            </tr>
+            <tr>
+                <th>CH_1</th>
+                <th>CH_2</th>
+                <th>CH_3</th>
+                <th>CH_4</th>
+                <th>(CH1 * CH2) / CH3</th>
+            </tr>
+            </thead>
+            <tbody id="analog-body">
+            <tr>
+                <td>--</td><td>--</td><td>--</td><td>--</td><td>--</td><td>--</td><td>--</td>
+            </tr>
+            <!-- More rows -->
+            </tbody>
+        </table>
+        </div>
+    </div>
+    
+    <!-- Digital Data Table -->
+    <div id="digital" class="tab-content">
+        <h2>Digital Data</h2>
+    
+        <div class="table-scroll-vertical">
+        <table>
+            <thead>
+            <tr>
+                <th rowspan="2">Time</th>
+                <th rowspan="2">Date</th>
+                <th colspan="4">Digital</th>
+            </tr>
+            <tr>
+                <th>GPIO1</th>
+                <th>GPIO2</th>
+                <th>GPIO3</th>
+                <th>GPIO4</th>
+            </tr>
+            </thead>
+            <tbody id="digital-body">
+            <tr>
+                <td>--</td><td>--</td><td>--</td><td>--</td><td>--</td><td>--</td>
+            </tr>
+            <!-- More rows -->
+            </tbody>
+        </table>
+        </div>
+    </div>
+    
+
+    <!-- Barcode Data Section -->
+    <div id="Barcode_Data" class="tab-content">
+        <h2>Barcode Data</h2>
+        
+        <!-- Flex Container for View & Add Data -->
+        <div class="main-container">
+            
+            <!-- Add Data (Left Side) -->
+            <div class="card add-data">
+                <h2>Add Data</h2>
+                <div class="barcode-container">
+                    <label for="itemCount">Enter Item Count:</label>
+                    <input type="number" id="itemCount" min="1" placeholder="Enter count" class="barcode-input">
+                    <button onclick="startScanning()" class="scan-btn">Start Scanning</button>
+                </div>
+                
+                <p id="scan-status">Waiting for scan...</p>
+
+                <!-- Missing Barcode Input Field (Added Here) -->
+                <div class="barcode-container">
+                    <label for="barcode-input">Scan Barcode:</label>
+                    <input id="barcode-input" onkeydown="handleBarcodeInput(event)" disabled />
+                </div>
+            </div>
+            
+
+            <!-- View Data (Right Side) -->
+            <div class="card view-data">
+                <h2>View Data</h2>
+                <div class="table-scroll-vertical"> <!-- ✅ SCROLLABLE WRAPPER -->
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Date</th>
+                                <th>Barcode</th>
+                            </tr>
+                        </thead>
+                        <tbody id="barcode-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+
+
+        </div> <!-- End of main-container -->
+    </div>
+
+
+        </main>
+        
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('analog')">Analog</button>
+            <button class="tab" onclick="showTab('digital')">Digital</button>
+            <button class="tab" onclick="showTab('Barcode_Data')">Barcode Data</button>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="../Assets/Js/analog.js"></script>
+        <script src="../Assets/Js/barcode.js"></script>
+    </body>
+    </html>
