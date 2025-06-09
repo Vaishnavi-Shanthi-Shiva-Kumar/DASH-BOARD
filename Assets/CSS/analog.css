@@ -233,6 +233,7 @@ main, .tabs, table {
   }
 }
 
+/* Switch Styling */
 .switch {
   position: relative;
   display: inline-block;
@@ -244,7 +245,7 @@ main, .tabs, table {
   opacity: 0;
   width: 0;
   height: 0;
-  pointer-events: none; /* Disable interaction */
+  pointer-events: auto; /* Enable interaction */
 }
 
 .slider {
