@@ -5,7 +5,6 @@ body {
   margin: 0 auto;
   padding: 24px;
   text-align: center;
-  font-family: 'Nunito', sans-serif;
 }
 
 /* Main Container */
@@ -20,113 +19,270 @@ main {
   transition: all 0.3s ease-in-out;
 }
 
-/* Cards for View Data and Add Data */
-.card-container {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 20px; /* Space between the cards */
-  flex-wrap: wrap;
+/* Container */
+.container {
+  text-align: center;
+  margin-top: 30px;
 }
 
-.card {
-  width: calc(50% - 10px);
-  background: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  transition: all 0.3s ease-in-out;
-  margin: 0 auto;
-  overflow: hidden;
-}
-
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-/* View Data Card */
-.view-data-card {
-  background-color: #f9f9f9;
-}
-
-.view-data-card h2 {
-  color: #333;
-}
-
-.view-data-card table {
+/* Table Styling */
+table {
   width: 100%;
-  margin-top: 10px;
+  margin: 5px auto;
   border-collapse: collapse;
   background: white;
   border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease-in-out;
 }
 
-.view-data-card th, .view-data-card td {
+th, td {
   padding: 12px;
   border: 1px solid #ddd;
   text-align: center;
   font-size: 14px;
 }
 
-.view-data-card th {
-  background: #003d82;
+th {
+  background: linear-gradient(to right, #003d82, #003d82);
   color: white;
   font-size: 15px;
 }
 
-.view-data-card td {
+td {
   background: #ffffff;
+  transition: all 0.3s ease-in-out;
 }
 
-.view-data-card td:hover {
+td:hover {
   background: #f0f7ff;
   transform: scale(1.02);
 }
 
-/* Add Data Card */
-.add-data-card {
-  background-color: #e5ffe5;
-}
-
-.add-data-card h2 {
-  color: #333;
-}
-
-.add-data-card .scan-btn {
+/* Tabs Styling - Moved to Bottom */
+.tabs {
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
   width: 100%;
-  max-width: 150px;
-  margin: 20px auto 0;
-  padding: 10px;
-  background-color: #003d82;
-  color: white;
-  font-weight: bold;
-  border: none;
-  border-radius: 8px;
+  padding: 10px 0;
+}
+
+.tab {
+  padding: 12px 30px;
   cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(to right, #eff1f3, #eff1f3);
+  border: none;
+  margin: 0 10px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 16px;
+  color: rgb(7, 6, 6);
+  transition: all 0.3s ease-in-out;
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1);
+  font-family: 'Nunito', sans-serif;
+}
+
+.tab:hover {
+  background: linear-gradient(to right, #6b9eff, #4178fa);
+  transform: scale(1.05);
+}
+
+.tab.active {
+  background: #0056b3;
+  color: white;
+  transform: scale(1.08);
+}
+
+/* Hide Content by Default */
+.tab-content {
+  display: none;
+}
+
+/* Show Active Content */
+.active-content {
+  display: block;
+}
+
+/* Smooth Animations */
+@keyframes fadeIn {
+  from {
+      opacity: 0;
+      transform: translateY(10px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+}
+
+main, .tabs, table {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Main Container for Barcode Data */
+.main-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+/* Left Side: Add Data */
+.add-data {
+  flex: 1;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Right Side: View Data */
+.view-data {
+  flex: 2;
+  text-align: center;
+}
+
+/* Reduce Space Between "View Data" and Table */
+.view-data h2 {
+  margin-bottom: 5px;
+}
+
+.data-display {
+  margin-top: 5px;
+  padding: 5px;
+}
+
+/* Card Styling */
+.card {
+  background: white;
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease-in-out;
 }
 
-.add-data-card .scan-btn:hover {
-  background-color: #0056b3;
+/* Ensure Table Aligns */
+.data-display table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-display th, .data-display td {
+  padding: 5px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+/* Scan Button Styling */
+.scan-btn {
+  background: #003d82;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  font-family: 'Nunito', sans-serif;
+  margin-top: 10px;
+  width: 120px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.scan-btn:hover {
+  background: #0056b3;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
   transform: translateY(-2px);
 }
 
-.add-data-card .scan-btn:active {
-  background-color: #003f80;
+.scan-btn:active {
+  background: #003f80;
   transform: translateY(1px);
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .card-container {
+  body {
+    max-width: 100%;
+    padding: 5px;
+  }
+  main {
+    width: 100%;
+    padding: 15px;
+    border-radius: 10px;
+  }
+  .main-container {
     flex-direction: column;
-    gap: 20px;
+    align-items: center;
   }
+  .scan-btn {
+    width: 100%;
+    max-width: 150px;
+  }
+}
 
-  .card {
-    width: 100%; /* Take full width on smaller screens */
-  }
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 34px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none; /* Disable interaction */
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: red;
+  border-radius: 20px;
+  transition: 0.3s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+input:checked + .slider {
+  background-color: green;
+}
+
+input:checked + .slider:before {
+  transform: translateX(14px);
+}
+
+.on {
+  background-color: green !important;
+}
+
+.off {
+  background-color: red !important;
 }
