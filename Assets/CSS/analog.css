@@ -20,232 +20,113 @@ main {
   transition: all 0.3s ease-in-out;
 }
 
-/* Tabs Section */
-.tabs {
+/* Cards for View Data and Add Data */
+.card-container {
   display: flex;
-  justify-content: center;
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  padding: 10px 0;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px; /* Space between the cards */
+  flex-wrap: wrap;
 }
 
-.tab {
-  padding: 12px 30px;
-  cursor: pointer;
-  background: linear-gradient(to right, #eff1f3, #eff1f3);
-  border: none;
-  margin: 0 10px;
-  border-radius: 8px;
-  font-weight: bold;
-  font-size: 16px;
-  color: rgb(7, 6, 6);
+.card {
+  width: calc(50% - 10px);
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.1);
+  padding: 20px;
   transition: all 0.3s ease-in-out;
-  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+  overflow: hidden;
 }
 
-.tab:hover {
-  background: linear-gradient(to right, #6b9eff, #4178fa);
-  transform: scale(1.05);
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.15);
 }
 
-.tab.active {
-  background: #0056b3;
-  color: white;
-  transform: scale(1.08);
+/* View Data Card */
+.view-data-card {
+  background-color: #f9f9f9;
 }
 
-/* Hide Content by Default */
-.tab-content {
-  display: none;
+.view-data-card h2 {
+  color: #333;
 }
 
-/* Show Active Content */
-.active-content {
-  display: block;
-}
-
-/* Table Styling */
-table {
+.view-data-card table {
   width: 100%;
-  margin: 5px auto;
+  margin-top: 10px;
   border-collapse: collapse;
   background: white;
   border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
 }
 
-th, td {
+.view-data-card th, .view-data-card td {
   padding: 12px;
   border: 1px solid #ddd;
   text-align: center;
   font-size: 14px;
 }
 
-th {
-  background: linear-gradient(to right, #003d82, #003d82);
+.view-data-card th {
+  background: #003d82;
   color: white;
   font-size: 15px;
 }
 
-td {
+.view-data-card td {
   background: #ffffff;
-  transition: all 0.3s ease-in-out;
 }
 
-td:hover {
+.view-data-card td:hover {
   background: #f0f7ff;
   transform: scale(1.02);
 }
 
-/* Scrollable Table */
-.table-scroll-vertical {
-  max-height: 320px; /* Adjust to your row height */
-  overflow-y: auto;
-  border: 1px solid #ddd;
+/* Add Data Card */
+.add-data-card {
+  background-color: #e5ffe5;
 }
 
-.table-scroll-vertical thead tr:first-child th,
-.table-scroll-vertical thead tr:last-child th {
-  position: sticky;
-  z-index: 10;
+.add-data-card h2 {
+  color: #333;
 }
 
-.table-scroll-vertical thead tr:first-child th {
-  top: 0;
-  box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
-}
-
-.table-scroll-vertical thead tr:last-child th {
-  top: 35px; /* Adjust based on your header row height */
-  box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
-}
-
-/* Scan Button Styling */
-.scan-btn {
-  background: #003d82;
+.add-data-card .scan-btn {
+  width: 100%;
+  max-width: 150px;
+  margin: 20px auto 0;
+  padding: 10px;
+  background-color: #003d82;
   color: white;
-  font-size: 14px;
   font-weight: bold;
-  padding: 8px 16px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease-in-out;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  margin-top: 10px;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
+  transition: all 0.3s ease-in-out;
 }
 
-.scan-btn:hover {
-  background: #0056b3;
+.add-data-card .scan-btn:hover {
+  background-color: #0056b3;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
   transform: translateY(-2px);
 }
 
-.scan-btn:active {
-  background: #003f80;
+.add-data-card .scan-btn:active {
+  background-color: #003f80;
   transform: translateY(1px);
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  body {
-    max-width: 100%;
-    padding: 5px;
-  }
-
-  main {
-    width: 100%;
-    padding: 15px;
-    border-radius: 10px;
-  }
-
-  .tabs {
-    bottom: 0;
-  }
-
-  .main-container {
+  .card-container {
     flex-direction: column;
-    align-items: center;
+    gap: 20px;
   }
 
-  .scan-btn {
-    width: 100%;
-    max-width: 150px;
+  .card {
+    width: 100%; /* Take full width on smaller screens */
   }
-
-  .switch {
-    width: 40px;
-    height: 22px;
-  }
-
-  .slider:before {
-    width: 16px;
-    height: 16px;
-  }
-}
-
-/* Switch Styling - Disabled */
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 34px;
-  height: 20px;
-}
-
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-  pointer-events: none; /* Disable interaction */
-}
-
-.slider {
-  position: absolute;
-  cursor: not-allowed; /* Change cursor to show disabled state */
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: red;
-  border-radius: 20px;
-  transition: 0.3s;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 14px;
-  width: 14px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  border-radius: 50%;
-  transition: 0.3s;
-}
-
-.switch input:checked + .slider {
-  background-color: red !important; /* Keep the red background when checked */
-}
-
-.switch input:checked + .slider:before {
-  transform: translateX(0px); /* Disable the movement */
-}
-
-/* High is Red */
-.high {
-  background-color: red;
-  color: white;
-}
-
-/* Low is Green */
-.low {
-  background-color: green;
-  color: white;
 }
