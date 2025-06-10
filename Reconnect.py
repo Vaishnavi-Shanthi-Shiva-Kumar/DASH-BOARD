@@ -8,99 +8,110 @@ import threading
 from datetime import datetime
 from zoneinfo import ZoneInfo  # Built-in in Python 3.9+
 
+
+# Initialize the Flask application with static file directories
 app = Flask(__name__, static_folder='Assets', static_url_path='/Assets')
 
-# Google Sheets setup
+# Google Sheets setup using OAuth2 credentials
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
 client = gspread.authorize(creds)
-sheet = client.open("UPLOAD_WIFI_ESP").worksheet("Barcode Data")
+sheet = client.open("uPLC_sheet").worksheet("Barcode_Data")
 
+# Track barcode values for the current session to avoid duplicates
+session_barcodes = set()
+
+# Route for the homepage, serves Index.html from the root directory
 @app.route('/')
 def home():
     return send_from_directory('.', 'Index.html')
 
+# Route for serving other pages (like external HTML files), maps to /Pages/<filename>
 @app.route('/Pages/<path:filename>')
 def pages(filename):
     return send_from_directory('Pages', filename)
 
+# Route for serving assets (images, JS, CSS) from the 'Assets' directory
 @app.route('/Assets/<path:filename>')
 def assets(filename):
     return send_from_directory('Assets', filename)
 
-# ===== Barcode Submission Endpoint =====
+# Route for handling barcode submissions, accepts POST request
 @app.route('/submit-barcode', methods=['POST'])
 def submit_barcode():
-    data = request.json
-    barcode = data.get("barcode", "").strip()
-
-    # Use Indian timezone for date and time
+    data = request.json  # Get the data from the incoming request
+    barcode = data.get("barcode", "").strip()  # Extract the barcode and remove extra spaces
     now = datetime.now(ZoneInfo("Asia/Kolkata"))
-    time = now.strftime("%H:%M:%S")   # Time in 24-hour format
-    date = now.strftime("%d-%m-%Y")   # Date in DD-MM-YYYY format
+    time = now.strftime("%H:%M:%S")  # Format time as HH:MM:SS
+    date = now.strftime("%d-%m-%Y")  # Format date as DD-MM-YYYY
 
-    # Barcode is valid if exactly 10 characters
+    # Barcode is considered valid if its length is greater than 10 characters
     is_valid = len(barcode) >= 10
 
-    # Append to local CSV file
+    # Check for barcode duplication within the session
+    if barcode in session_barcodes:
+        return jsonify({
+            "success": False,
+            "message": "Barcode already scanned in this session."
+        })
+
+    # Add the barcode to the session set to prevent future duplicates
+    session_barcodes.add(barcode)
+
+    # Save the barcode and timestamp to a local CSV file for record-keeping
     with open("barcodes.csv", "a", newline="") as f:
         writer = csv.writer(f)
         writer.writerow([time, date, barcode])
 
-    try:
-        # Append to Google Sheet
-        sheet.append_row([time, date, barcode])
+    # Save to Google Sheets
+    new_row = [time, date, barcode]
+    sheet.append_row(new_row)
 
-        # Send success response to frontend
-        return jsonify({
-            "success": True,
-            "barcode": barcode,
-            "valid": is_valid,
-            "time": time,
-            "date": date
+    # Get the last row after the barcode is added (this would be the newly appended row)
+    last_row = len(sheet.get_all_values())
+
+    # Apply row color based on barcode validity
+    if is_valid:
+        # Light Green (#e5ffe5) if the barcode is valid
+        sheet.format(f"A{last_row}:C{last_row}", {'backgroundColor': {'red': 0.9, 'green': 1, 'blue': 0.9}})
+    else:
+        # Light Red (#ffcccc) if the barcode is invalid
+        sheet.format(f"A{last_row}:C{last_row}", {'backgroundColor': {'red': 1, 'green': 0.8, 'blue': 0.8}})
+
+    # Send response to frontend
+    return jsonify({
+        "success": True,
+        "barcode": barcode,
+        "valid": is_valid,
+        "time": time,
+        "date": date
+    })
+
+# Route to get all barcode data with colored values in the frontend
+@app.route('/get-barcodes', methods=['GET'])
+def get_barcodes():
+    # Fetch all barcode data from the sheet
+    values = sheet.get_all_values()
+    barcodes = []
+
+    # Color logic for barcodes (green for valid, red for invalid)
+    for row in values:
+        barcode = row[2]
+        is_valid = len(barcode) > 10
+        color = 'green' if is_valid else 'red'
+        barcodes.append({
+            'time': row[0],
+            'date': row[1],
+            'barcode': barcode,
+            'color': color
         })
 
-    except Exception as e:
-        # If there's a failure writing to the sheet
-        print(f"Google Sheets error: {e}")
-        return jsonify({"success": False, "message": "Failed to save to Google Sheets"})
+    return jsonify({
+        "success": True,
+        "barcodes": barcodes
+    })
 
-# ===== Sheet lock to prevent simultaneous access errors =====
-sheet_lock = threading.Lock()
-
-# ===== GPIO Switch column mapping in the Google Sheet =====
-switch_columns = {
-    "GPIO1": 8,
-    "GPIO2": 9,
-    "GPIO3": 10,
-    "GPIO4": 11
-}
-
-# ===== Get the current state of all switches from the sheet =====
-@app.route('/get-switch-states', methods=['GET'])
-def get_switch_states():
-    with sheet_lock:
-        try:
-            values = sheet.get_all_values()
-            if len(values) < 3:
-                # If sheet is mostly empty, return all Low
-                return jsonify({"success": True, "states": {s: "Low" for s in switch_columns.keys()}})
-
-            last_row = values[-1]  # Last row in sheet
-            states = {}
-
-            # Extract GPIO states from columns H–K (8–11)
-            for switch_name, col in switch_columns.items():
-                val = last_row[col - 1] if len(last_row) >= col else "Low"
-                states[switch_name] = val if val in ["High", "Low"] else "Low"
-
-            return jsonify({"success": True, "states": states})
-
-        except Exception as e:
-            print(f"Switch read error: {e}")
-            return jsonify({"success": False, "message": "Failed to get switch states"}), 500
-
-# ===== Run the Flask app =====
+# Entry point for running the Flask application
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(debug=False, host='0.0.0.0', port=port)
+    port = int(os.environ.get('PORT', 5000))  # Get the port from environment or default to 5000
+    app.run(debug=False, host='0.0.0.0', port=port)  # Run the Flask app, accessible on all IPs
