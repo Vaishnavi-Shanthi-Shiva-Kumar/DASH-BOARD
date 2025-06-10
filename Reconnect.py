@@ -8,42 +8,36 @@ import threading
 from datetime import datetime
 from zoneinfo import ZoneInfo  # Built-in in Python 3.9+
 
-
-# Initialize the Flask application with static file directories
 app = Flask(__name__, static_folder='Assets', static_url_path='/Assets')
 
-# Google Sheets setup using OAuth2 credentials
+# Google Sheets setup
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
 client = gspread.authorize(creds)
-sheet = client.open("uPLC_sheet").worksheet("Barcode_Data")
+sheet = client.open("UPLOAD_WIFI_ESP").worksheet("Barcode Data")
 
-# Track barcode values for the current session to avoid duplicates
-session_barcodes = set()
-
-# Route for the homepage, serves Index.html from the root directory
 @app.route('/')
 def home():
     return send_from_directory('.', 'Index.html')
 
-# Route for serving other pages (like external HTML files), maps to /Pages/<filename>
 @app.route('/Pages/<path:filename>')
 def pages(filename):
     return send_from_directory('Pages', filename)
 
-# Route for serving assets (images, JS, CSS) from the 'Assets' directory
 @app.route('/Assets/<path:filename>')
 def assets(filename):
     return send_from_directory('Assets', filename)
 
-# Route for handling barcode submissions, accepts POST request
+# ===== Barcode Submission Endpoint =====
 @app.route('/submit-barcode', methods=['POST'])
 def submit_barcode():
-    data = request.json  # Get the data from the incoming request
-    barcode = data.get("barcode", "").strip()  # Extract the barcode and remove extra spaces
+    data = request.json
+    barcode = data.get("barcode", "").strip()
+
+    # Use Indian timezone for date and time
     now = datetime.now(ZoneInfo("Asia/Kolkata"))
-    time = now.strftime("%H:%M:%S")  # Format time as HH:MM:SS
-    date = now.strftime("%d-%m-%Y")  # Format date as DD-MM-YYYY
+    time = now.strftime("%H:%M:%S")   # Time in 24-hour format
+    date = now.strftime("%d-%m-%Y")   # Date in DD-MM-YYYY format
 
     # Barcode is considered valid if its length is greater than 10 characters
     is_valid = len(barcode) >= 10
