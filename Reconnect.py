@@ -1,20 +1,25 @@
 from flask import Flask, send_from_directory, request, jsonify
 import csv
 from datetime import datetime
+from zoneinfo import ZoneInfo  # Requires Python 3.9+
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import os
 import threading
-from datetime import datetime
-from zoneinfo import ZoneInfo  # Built-in in Python 3.9+
 
+# Flask app setup
 app = Flask(__name__, static_folder='Assets', static_url_path='/Assets')
 
-# Google Sheets setup
+# Google Sheets API setup
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
 client = gspread.authorize(creds)
 sheet = client.open("UPLOAD_WIFI_ESP").worksheet("Barcode Data")
+
+# Session barcode tracking (prevent duplicates during a session)
+session_barcodes = set()
+
+# Flask Routes
 
 @app.route('/')
 def home():
@@ -28,18 +33,19 @@ def pages(filename):
 def assets(filename):
     return send_from_directory('Assets', filename)
 
-# ===== Barcode Submission Endpoint =====
 @app.route('/submit-barcode', methods=['POST'])
 def submit_barcode():
+    global session_barcodes
+
     data = request.json
     barcode = data.get("barcode", "").strip()
 
-    # Use Indian timezone for date and time
+    # System time with Indian timezone
     now = datetime.now(ZoneInfo("Asia/Kolkata"))
-    time = now.strftime("%H:%M:%S")   # Time in 24-hour format
-    date = now.strftime("%d-%m-%Y")   # Date in DD-MM-YYYY format
+    time = now.strftime("%H:%M:%S")
+    date = now.strftime("%d-%m-%Y")
 
-    # Barcode is considered valid if its length is greater than 10 characters
+    # Barcode validity: must be exactly 10 characters
     is_valid = len(barcode) >= 10
 
     # Check for barcode duplication within the session
@@ -49,10 +55,10 @@ def submit_barcode():
             "message": "Barcode already scanned in this session."
         })
 
-    # Add the barcode to the session set to prevent future duplicates
+    # Add the barcode to session to prevent future duplicates
     session_barcodes.add(barcode)
 
-    # Save the barcode and timestamp to a local CSV file for record-keeping
+    # Save to local CSV
     with open("barcodes.csv", "a", newline="") as f:
         writer = csv.writer(f)
         writer.writerow([time, date, barcode])
@@ -61,18 +67,19 @@ def submit_barcode():
     new_row = [time, date, barcode]
     sheet.append_row(new_row)
 
-    # Get the last row after the barcode is added (this would be the newly appended row)
+    # Get the last row index
     last_row = len(sheet.get_all_values())
 
-    # Apply row color based on barcode validity
+    # Color-code the row based on validity
     if is_valid:
-        # Light Green (#e5ffe5) if the barcode is valid
-        sheet.format(f"A{last_row}:C{last_row}", {'backgroundColor': {'red': 0.9, 'green': 1, 'blue': 0.9}})
+        sheet.format(f"A{last_row}:C{last_row}", {
+            'backgroundColor': {'red': 0.9, 'green': 1, 'blue': 0.9}  # Light green
+        })
     else:
-        # Light Red (#ffcccc) if the barcode is invalid
-        sheet.format(f"A{last_row}:C{last_row}", {'backgroundColor': {'red': 1, 'green': 0.8, 'blue': 0.8}})
+        sheet.format(f"A{last_row}:C{last_row}", {
+            'backgroundColor': {'red': 1, 'green': 0.8, 'blue': 0.8}  # Light red
+        })
 
-    # Send response to frontend
     return jsonify({
         "success": True,
         "barcode": barcode,
@@ -81,17 +88,16 @@ def submit_barcode():
         "date": date
     })
 
-# Route to get all barcode data with colored values in the frontend
 @app.route('/get-barcodes', methods=['GET'])
 def get_barcodes():
-    # Fetch all barcode data from the sheet
     values = sheet.get_all_values()
     barcodes = []
 
-    # Color logic for barcodes (green for valid, red for invalid)
     for row in values:
+        if len(row) < 3:
+            continue
         barcode = row[2]
-        is_valid = len(barcode) > 10
+        is_valid = len(barcode) == 10
         color = 'green' if is_valid else 'red'
         barcodes.append({
             'time': row[0],
@@ -105,7 +111,13 @@ def get_barcodes():
         "barcodes": barcodes
     })
 
-# Entry point for running the Flask application
+@app.route('/reset-session', methods=['POST'])
+def reset_session():
+    global session_barcodes
+    session_barcodes.clear()
+    return jsonify({"success": True, "message": "Session barcodes cleared."})
+
+# Run Flask app
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))  # Get the port from environment or default to 5000
-    app.run(debug=False, host='0.0.0.0', port=port)  # Run the Flask app, accessible on all IPs
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=False, host='0.0.0.0', port=port)
