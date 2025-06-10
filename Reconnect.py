@@ -5,6 +5,7 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import os
 import threading
+import pytz
 
 app = Flask(__name__, static_folder='Assets', static_url_path='/Assets')
 
@@ -39,7 +40,7 @@ def submit_barcode():
     date = now.strftime("%d-%m-%Y")   # Date in DD-MM-YYYY format
 
     # Barcode is valid if exactly 10 characters
-    is_valid = len(barcode) == 10
+    is_valid = len(barcode) >= 10
 
     # Append to local CSV file
     with open("barcodes.csv", "a", newline="") as f:
