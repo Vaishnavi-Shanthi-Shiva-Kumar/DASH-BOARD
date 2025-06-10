@@ -5,7 +5,8 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import os
 import threading
-import pytz
+from datetime import datetime
+from zoneinfo import ZoneInfo  # Built-in in Python 3.9+
 
 app = Flask(__name__, static_folder='Assets', static_url_path='/Assets')
 
@@ -34,8 +35,7 @@ def submit_barcode():
     barcode = data.get("barcode", "").strip()
 
     # Use Indian timezone for date and time
-    tz = pytz.timezone("Asia/Kolkata")
-    now = datetime.now(tz)
+    now = datetime.now(ZoneInfo("Asia/Kolkata"))
     time = now.strftime("%H:%M:%S")   # Time in 24-hour format
     date = now.strftime("%d-%m-%Y")   # Date in DD-MM-YYYY format
 
